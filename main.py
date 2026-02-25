@@ -13,7 +13,8 @@ WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
 GITHUB_TOKEN = os.environ.get("GH_TOKEN")
 GITHUB_USER = "Levros7"
 GITHUB_REPO = "obsidian-telegram-bot"
-FILE_PATH = "Claude Conversations.md"
+FILE_PATH = "Claude_Conversations.md"
+
 
 def get_file():
     url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{FILE_PATH}"
