@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+GITHUB_TOKEN = os.environ.get("GH_TOKEN")
 GITHUB_USER = "Levros7"
 GITHUB_REPO = "obsidian-telegram-bot"
 FILE_PATH = "Claude Conversations.md"
