@@ -26,17 +26,15 @@ def get_file():
         return content, data["sha"]
     return "", None
 
+
 def save_to_github(topic):
     today = datetime.now().strftime("%Y-%m-%d")
     time_now = datetime.now().strftime("%H:%M")
     content, sha = get_file()
 
     if f"## {today}" not in content:
-        content += f"
-## {today}
-"
-    content += f"- {time_now} — {topic}
-"
+        content += f"\n## {today}\n"
+    content += f"- {time_now} — {topic}\n"
 
     url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{FILE_PATH}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
@@ -47,7 +45,8 @@ def save_to_github(topic):
         payload["sha"] = sha
 
     r = requests.put(url, json=payload, headers=headers)
-    return r.status_code == 200 or r.status_code == 201
+    return r.status_code in (200, 201)
+
 
 def save_lasttopic_to_github(text):
     now = datetime.now()
@@ -57,17 +56,11 @@ def save_lasttopic_to_github(text):
     content, sha = get_file()
 
     entry = (
-        f"
----
-"
-        f"**Last Claude Topic**
-"
-        f"📅 {day_str}, {date_str} — {time_str}
-"
-        f"💬 {text}
-"
+        "\n---\n"
+        "**Last Claude Topic**\n"
+        f"📅 {day_str}, {date_str} — {time_str}\n"
+        f"💬 {text}\n"
     )
-
     content += entry
 
     url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{FILE_PATH}"
@@ -79,18 +72,17 @@ def save_lasttopic_to_github(text):
         payload["sha"] = sha
 
     r = requests.put(url, json=payload, headers=headers)
-    return r.status_code == 200 or r.status_code == 201
+    return r.status_code in (200, 201)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "✅ Obsidian bot running!
-"
-        "Commands:
-"
-        "/topic <text> — save a topic entry
-"
+        "✅ Obsidian bot running!\n"
+        "Commands:\n"
+        "/topic <text> — save a topic entry\n"
         "/lasttopic <text> — record the last Claude conversation topic"
     )
+
 
 async def topic(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
@@ -103,6 +95,7 @@ async def topic(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("❌ Failed to save")
 
+
 async def lasttopic(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Usage: /lasttopic <topic text>")
@@ -112,14 +105,13 @@ async def lasttopic(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if success:
         now = datetime.now()
         await update.message.reply_text(
-            f"✅ Saved to Obsidian:
-"
-            f"📅 {now.strftime('%A, %Y-%m-%d')} — {now.strftime('%H:%M')}
-"
+            "✅ Saved to Obsidian:\n"
+            f"📅 {now.strftime('%A, %Y-%m-%d')} — {now.strftime('%H:%M')}\n"
             f"💬 {text}"
         )
     else:
         await update.message.reply_text("❌ Failed to save")
+
 
 app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
