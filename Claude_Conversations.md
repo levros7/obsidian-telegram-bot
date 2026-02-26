@@ -24,3 +24,8 @@
 **Last Claude Topic**
 📅 Thursday, 2026-02-26 — 09:09
 💬 Gmail Railway Email Agent” — it’s shown in the tab at the top of your browser.
+
+---
+**Last Claude Topic**
+📅 Thursday, 2026-02-26 — 09:21
+💬 תיקון: “איך תהיה הפקודה ב-Unix **ל-**history tail” — מילת שאלה + כיוון הפעולה. history | tail -20 מציג את 20 הפקודות האחרונות. history | tail -20
