@@ -50,33 +50,40 @@ def save_to_github(topic):
     r = requests.put(url, json=payload, headers=headers)
     return r.status_code in (200, 201)
 
-
 def save_lasttopic_to_github(text):
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M")
     day_str = now.strftime("%A")
-    content, sha = get_file()
 
-    entry = (
-        "\n---\n"
-        "**Last Claude Topic**\n"
-        f"📅 {day_str}, {date_str} — {time_str}\n"
+    # 1. Create a new file per topic
+    safe_text = text.replace("/", "-").replace("\\", "-").strip()
+    topic_filename = f"{date_str} {safe_text}.md"
+    topic_content = (
+        f"# {safe_text}\n\n"
+        f"📅 {day_str}, {date_str} — {time_str}\n\n"
         f"💬 {text}\n"
     )
-    content += entry
-
-    url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{FILE_PATH}"
+    topic_url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{topic_filename}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    encoded = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+    encoded_topic = base64.b64encode(topic_content.encode("utf-8")).decode("utf-8")
+    payload_topic = {"message": f"New topic: {text}", "content": encoded_topic}
+    r1 = requests.put(topic_url, json=payload_topic, headers=headers)
 
-    payload = {"message": f"Last topic: {text}", "content": encoded}
+    # 2. Append a wikilink to the index file (Claude_Conversations.md)
+    content, sha = get_file()
+    if f"## {date_str}" not in content:
+        content += f"\n## {date_str}\n"
+    content += f"- {time_str} — [[{date_str} {safe_text}]]\n"
+
+    index_url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{FILE_PATH}"
+    encoded_index = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+    payload_index = {"message": f"Index: {text}", "content": encoded_index}
     if sha:
-        payload["sha"] = sha
+        payload_index["sha"] = sha
+    r2 = requests.put(index_url, json=payload_index, headers=headers)
 
-    r = requests.put(url, json=payload, headers=headers)
-    return r.status_code in (200, 201)
-
+    return r1.status_code in (200, 201) and r2.status_code in (200, 201)
 
 def ask_claude(question, context_text):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
